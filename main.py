@@ -1,5 +1,6 @@
 import pygame
 import sys
+from game_settings import settings
 
 pygame.init()
 # Constants for the game
@@ -99,13 +100,8 @@ class Board:
 
 
 def main():
-    # Checking for correct system arguments when executing the program.
-    if len(sys.argv) != 2:
-        sys.exit("Usage: python main.py 3 (or 4,5)")
-    else:
-        grid_size = int(sys.argv[1])
-        if grid_size not in (3, 4, 5):
-            sys.exit("Choose between 3x3 or 4x4, 5x5 grid")
+    # Getting the size of the grid the turn phase and the mode from the user.
+    grid_size, turn, mode = settings()
 
     # Initialize the pygame window and board
     screen = pygame.display.set_mode((WIDTH + 2 * PAD, HEIGHT + 2 * PAD))
@@ -138,7 +134,6 @@ def main():
                             game_over = True
                             trigger = "Player X won the game"
                         turn += 1
-                        board.print()
                     else:
                         board.insert(x, y, 'o')
                         if board.check_winning(turn):
@@ -148,7 +143,7 @@ def main():
 
                     board.print()
 
-        # if board is filled and noone has won the game ends in a draw.
+        # if board is filled and none has won the game ends in a draw.
         if board.moves == board.grid_size**2:
             game_over = True
             trigger = "Its a draw."
