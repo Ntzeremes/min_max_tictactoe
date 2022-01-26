@@ -29,9 +29,9 @@ class Board:
     def draw(self):
         for i in range(self.grid_size - 1):
             pygame.draw.line(self.screen, self.color, (self.pad + (i+1)*self.increment, self.pad),
-                             (self.pad + (i+1)*self.increment, self.pad + self.width))
+                             (self.pad + (i+1)*self.increment, self.pad + self.width), 2)
             pygame.draw.line(self.screen, self.color, (self.pad, self.pad + (i+1)*self.increment),
-                             (self.pad + self.width, self.pad + (i+1)*self.increment))
+                             (self.pad + self.width, self.pad + (i+1)*self.increment), 2)
 
     def draw_o(self, x, y):
         pygame.draw.circle(self.screen, (0, 0, 255), (int(self.pad + x*self.increment + 0.5*self.increment),
@@ -99,9 +99,8 @@ class Board:
             return False
 
 
-def main():
-    # Getting the size of the grid the turn phase and the mode from the user.
-    grid_size, turn, mode = settings()
+def pvp(grid_size):
+    """ Initializes and executes the player vs player game loop."""
 
     # Initialize the pygame window and board
     screen = pygame.display.set_mode((WIDTH + 2 * PAD, HEIGHT + 2 * PAD))
@@ -117,7 +116,7 @@ def main():
 
     while not game_over:
 
-        # Event Loop for the game
+        # Event Loop for the game in the mode player vs player
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game_over = True
@@ -141,9 +140,7 @@ def main():
                             trigger = "Player O won the game"
                         turn -= 1
 
-                    board.print()
-
-        # if board is filled and none has won the game ends in a draw.
+        # if board is filled, none has won and the game ends in a draw.
         if board.moves == board.grid_size**2:
             game_over = True
             trigger = "Its a draw."
@@ -151,6 +148,24 @@ def main():
         pygame.display.flip()
 
     sys.exit(trigger)
+
+
+def pvc(grid_size, turn):
+    """ Initializes and executes the player vs computer game loop."""
+    pass
+
+
+def main():
+    # Getting the size of the grid the, turn phase and the mode from the user.
+    grid_size, turn, mode = settings()
+
+    # Executing the player vs player game if mode is 0:
+    if mode == 0:
+        pvp(grid_size)
+
+    # Executing the
+    else:
+        pvc(grid_size, turn)
 
 
 if __name__ == "__main__":
