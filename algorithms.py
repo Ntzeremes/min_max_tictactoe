@@ -100,6 +100,42 @@ def minmax(board):
         return min_utility, action
 
 
+def minmax_ab(board, alpha, beta):
+    """Minmax algorithm for the 3x3 game, it is not depth limited."""
+
+    if game_over(board):
+        return utility(board), None
+
+    turn = player(board)
+
+    if turn == "X":
+        max_utility = -10
+        action = None
+        for a in actions(board):
+            current_utility, _ = minmax_ab(result(board, a, "X"), alpha, beta)
+            if current_utility > max_utility:
+                max_utility = current_utility
+                action = a
+            alpha = max(alpha, max_utility)
+            if beta <= alpha:
+                break
+
+        return max_utility, action
+    else:
+        min_utility = 10
+        action = None
+        for a in actions(board):
+            current_utility, _ = minmax_ab(result(board, a, "O"), alpha, beta)
+            if current_utility < min_utility:
+                min_utility = current_utility
+                action = a
+            beta = min(beta, min_utility)
+            if beta <= alpha:
+                break
+
+        return min_utility, action
+
+
 def algo_tester():
     """this function tests all the algorithms of this module on some test boards.
     it returns the best action for each board and the time it took to calculate it."""
@@ -134,13 +170,16 @@ def algo_tester():
         action = minmax(table)
         end = time.time()
 
-        print(f"for table {i + 1} best action is {action} and total time is {end - start} sec.")
+        print(f"Minmax: For table {i + 1} best action is {action} and total time is {end - start} sec.")
 
+        alpha = -10
+        beta = 10
 
-test = [["X", "O", "#"],
-        ["#", "X", "#"],
-        ["#", "#", "#"]]
+        start = time.time()
+        action = minmax_ab(table, alpha, beta)
+        end = time.time()
+        print(f"Minmax_ab:For table {i + 1} best action is {action} and total time is {end - start} sec.")
+        print()
 
-algo_tester()
 
 
