@@ -180,6 +180,3 @@ def algo_tester():
         end = time.time()
         print(f"Minmax_ab:For table {i + 1} best action is {action} and total time is {end - start} sec.")
         print()
-
-
-

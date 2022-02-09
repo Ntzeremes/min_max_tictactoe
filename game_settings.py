@@ -1,59 +1,77 @@
-"""GUI made in tkinter that gives at the start of the game the player some basic choices.
+"""GUI that gives at the start of the game the player some basic choices.
  playing vs computer or other player  and choosing X or O"""
-import tkinter as tk
+
+import pygame
+
+pygame.init()
 
 
-def settings():
-    # Setting main widget
-    width = 400
-    height = 280
-    root = tk.Tk()
-    root.title("Game settings")
-    root.geometry(f"{width}x{height}")
-    root.configure(background="black")
+class Button:
+    def __init__(self, pos, height, width, font, text):
+        self.rect = pygame.Rect(pos, (width, height))
+        self.color = (50, 50, 50)
+        self.text_surf = font.render(text, True, (255, 255, 255))
+        self.text_rect = self.text_surf.get_rect(center=self.rect.center)
+        self.pressed = False
 
-    # Start button
-    pressed = False
+    def draw(self, screen):
+        pygame.draw.rect(screen, self.color, self.rect)
+        screen.blit(self.text_surf, self.text_rect)
 
-    def got_pressed():
-        nonlocal pressed
-        pressed = True
-        root.destroy()
+    def click(self):
+        mouse_pos = pygame.mouse.get_pos()
+        if self.rect.collidepoint(*mouse_pos):
+            if pygame.mouse.get_pressed()[0]:
+                self.pressed = True
+            else:
+                if self.pressed:
+                    self.pressed = False
+                    return True
+        return False
 
-    button = tk.Button(root, text="Start", command=got_pressed,
-                       fg="white", bg="black").grid(row=3, column=1, sticky="news")
-    # Radio buttons and their variables
 
-    turn = tk.StringVar()
-    turn.set("x")
-    tk.Radiobutton(root, text="X", padx=20, variable=turn, value="X", indicator=0, activebackground="#252525",
-                   fg="white", bg="black", selectcolor="#252525").grid(row=1, column=1, sticky="news")
-    tk.Radiobutton(root, text="O", padx=20, variable=turn, value="O", indicator=0, activebackground="#252525",
-                   fg="white", bg="black", selectcolor="#252525").grid(row=2, column=1, sticky="news")
+def settings(font):
 
-    versus = tk.IntVar()
-    versus.set(0)
-    tk.Radiobutton(root, text="Player vs Player", padx=20, variable=versus, value=0, activebackground="#252525",
-                   indicator=0, fg="white", bg="black", selectcolor="#252525").grid(row=1, column=0, sticky="news")
-    tk.Radiobutton(root, text="Player vs Computer", padx=20, variable=versus, value=1, activebackground="#252525",
-                   indicator=0, fg="white", bg="black", selectcolor="#252525").grid(row=2, column=0, sticky="news")
+    main = pygame.display.set_mode((300, 300))
+    main.fill((0, 0, 0))
+    pygame.display.set_caption("Tic tac toe")
+    settings_over = False
+    clock = pygame.time.Clock()
 
-    # Configure weights of col and rows
-    root.columnconfigure(0, weight=1)
-    root.columnconfigure(1, weight=1)
-    root.rowconfigure(0, weight=1)
-    root.rowconfigure(1, weight=1)
-    root.rowconfigure(2, weight=1)
-    root.rowconfigure(3, weight=1)
+    # create the buttons
+    pvp = Button((25, 50), 75, 250, font, "Player vs Player")
+    pvc = Button((25, 175), 75, 250, font, "Player vs Computer")
 
-    # Lock window size
-    root.update()
-    root.minsize(width, height)
-    root.maxsize(width, height)
+    play_x = Button((60, 60), 55, 180, font, "Play X")
+    play_o = Button((60, 185), 55, 180, font, "Play O")
 
-    root.mainloop()
+    pvmode = True
+    choose_turn = False
 
-    if pressed:
-        return grid.get(), turn.get(), versus.get()
-    else:
-        return None, None, None
+    while not settings_over:
+        clock.tick(60)
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                settings_over = True
+
+        if pvmode:
+            pvp.draw(main)
+            pvc.draw(main)
+
+            if pvp.click():
+                return 0, None
+
+            if pvc.click():
+                choose_turn = True
+                pvmode = False
+
+        if choose_turn:
+            play_x.draw(main)
+            play_o.draw(main)
+
+            if play_x.click():
+                return 1, "X"
+            if play_o.click():
+                return 1, "O"
