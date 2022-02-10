@@ -3,7 +3,7 @@
 This is a tic tac toe game created in pygame.
 The game has a player vs player or a player vs computer mode.
 
-##Algorithm
+## Algorithm
 
 The algorithm used for the player vs computer is a minmax algorithm.
 It is not depth limited and uses alpha beta pruning for better efficiency.
