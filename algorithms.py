@@ -170,7 +170,7 @@ def algo_tester():
         action = minmax(table)
         end = time.time()
 
-        print(f"Minmax: For table {i + 1} best action is {action} and total time is {end - start} sec.")
+        print(f"Minmax: For table {i + 1} best action is {action[1]} and total time is {end - start} sec.")
 
         alpha = -10
         beta = 10
@@ -178,5 +178,5 @@ def algo_tester():
         start = time.time()
         action = minmax_ab(table, alpha, beta)
         end = time.time()
-        print(f"Minmax_ab:For table {i + 1} best action is {action} and total time is {end - start} sec.")
+        print(f"Minmax_ab:For table {i + 1} best action is {action[1]} and total time is {end - start} sec.")
         print()
