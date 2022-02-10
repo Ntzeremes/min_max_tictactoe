@@ -16,10 +16,11 @@ PAD = 50
 
 
 class Text:
-    def __init__(self, font, pos, height, width):
+    def __init__(self, font, pos, height, width, text="_"):
         self.font = font
+        self._text = text
         self.rect = pygame.Rect(pos, (width, height))
-        self.text_surf = font.render("_", True, (255, 255, 255))
+        self.text_surf = font.render(self._text, True, (255, 255, 255))
         self.text_rect = self.text_surf.get_rect(center=self.rect.center)
 
     def draw(self, screen):
@@ -43,7 +44,7 @@ class Board:
         self.screen = screen
         self.color = color
         self.pad = pad
-        self.grid = [["#" for i in range(grid)] for j in range(grid)]
+        self.grid = [["#" for _ in range(grid)] for _ in range(grid)]
         self.win = 3 if grid == 3 else 4
 
     def draw(self):
@@ -105,8 +106,7 @@ class Board:
                 if self.grid[0][i] == "X" or self.grid[0][i] == "O":
                     return self.grid[0][i]
 
-        if self.grid[0][0] == self.grid[1][1] == self.grid[2][2] or self.grid[0][2] == self.grid[1][1] == self.grid[2][
-            0]:
+        if self.grid[0][0] == self.grid[1][1] == self.grid[2][2] or self.grid[0][2] == self.grid[1][1] == self.grid[2][0]:
             if self.grid[1][1] == "X" or self.grid[1][1] == "O":
                 return self.grid[1][1]
 
@@ -125,7 +125,7 @@ class Board:
         return True
 
 
-def pvp(grid_size, board):
+def pvp(grid_size, board, font):
     """ Initializes and executes the player vs player game loop."""
 
     game_over = False
@@ -133,7 +133,7 @@ def pvp(grid_size, board):
     increment = WIDTH / grid_size
     clock = pygame.time.Clock()
 
-    while not game_over:
+    while not game_over and not board.game_over():
         clock.tick(60)
 
         # Event Loop for the game in the mode player vs player
@@ -143,30 +143,38 @@ def pvp(grid_size, board):
 
             # Checking mouse clicking position
             if event.type == pygame.MOUSEBUTTONDOWN:
-                x = int(event.pos[0] // increment)
-                y = int(event.pos[1] // increment)
+                x = int((event.pos[0] - 50) // increment)
+                y = int((event.pos[1] - 50) // increment)
 
-                if x < board.grid_size and y < board.grid_size:
+                if 0 <= x < board.grid_size and 0 <= y < board.grid_size:
                     if board.check_empty(x, y):
                         board.insert(x, y, board.player())
 
-        if board.game_over():
-            winner = board.check_winner()
-            trigger = "It is a draw"
-            if winner:
-                trigger = f"{winner} player has won."
-            game_over = True
-
         pygame.display.flip()
 
-    sys.exit(trigger)
+    if board.check_winner() == "X":
+        trigger = "X player has won."
+    elif board.check_winner() == "O":
+        trigger = "O player has won."
+    else:
+        trigger = "It is a tie!!"
+
+    # Checking for winner and printing the result in a new loop
+    reset = False
+    result = Text(font, (225, 275), 150, 250, trigger)
+
+    while not reset:
+        pygame.display.flip()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                reset = True
+        result.draw(board.screen)
 
 
 def pvc(grid_size, turn, board, font):
     """ Initializes and executes the player vs computer game loop."""
 
     game_over = False
-    trigger = "Closed"
     increment = WIDTH / grid_size
     clock = pygame.time.Clock()
     players_text = Text(font, (250, 5), 40, 200)
@@ -186,7 +194,7 @@ def pvc(grid_size, turn, board, font):
                     x = int((event.pos[0] - 50) // increment)
                     y = int((event.pos[1] - 50) // increment)
 
-                    if board.check_empty(x, y):
+                    if 0 <= x < board.grid_size and 0 <= y < board.grid_size:
                         board.insert(x, y, turn)
         else:
             players_text.text("Computer's turn")
@@ -198,7 +206,23 @@ def pvc(grid_size, turn, board, font):
 
             board.insert(action[0], action[1], board.player())
 
-    sys.exit(trigger)
+    # Checking for winner and printing the result in a new loop
+    if board.check_winner() == "X":
+        trigger = "X player has won."
+    elif board.check_winner() == "O":
+        trigger = "O player has won."
+    else:
+        trigger = "It is a tie!!"
+
+    reset = False
+    result = Text(font, (225, 275), 150, 250, trigger)
+
+    while not reset:
+        pygame.display.flip()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                reset = True
+        result.draw(board.screen)
 
 
 def main():
@@ -207,7 +231,6 @@ def main():
     font = pygame.font.Font(None, 25)
     mode, turn = settings(font)
 
-    print(turn)
     # Initialize the pygame window and board
     screen = pygame.display.set_mode((WIDTH + 2 * PAD, HEIGHT + 2 * PAD))
     screen.fill(BLACK)
@@ -217,7 +240,7 @@ def main():
 
     # Executing the player vs player game if mode is 0:
     if mode == 0:
-        pvp(3, board)
+        pvp(3, board, font)
 
     # Executing the player vs computer
     else:
